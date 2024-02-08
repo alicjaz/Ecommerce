@@ -1,9 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
+from django.db.models import Q
 
 from .forms import SignUpForm
-from .models import Product
+from .models import Category, Product
 
 
 def home(request):
@@ -59,3 +60,20 @@ def register_user(request):
 def product(request, pk):
     product = Product.objects.get(id=pk)
     return render(request, 'product.html', {'product': product})
+
+
+def category(request, foo):
+    foo = foo.replace('-', ' ')
+    try:
+        # Look Up The Category (Case-insensitive)
+        category = Category.objects.filter(Q(name__iexact=foo)).first()
+
+        if category is not None:
+            products = Product.objects.filter(category=category)
+            return render(request, 'category.html', {'products': products, 'category': category})
+        else:
+            raise Category.DoesNotExist
+
+    except Category.DoesNotExist:
+        messages.success(request, "That Category Doesn't Exist...")
+        return redirect('home')

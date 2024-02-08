@@ -19,14 +19,16 @@
                 {% endif %}
                 <li class="nav-item dropdown">
                     <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
-                       id="navbarDropdown" role="button">Shop</a>
+                       id="navbarDropdown" role="button">Categories</a>
                     <ul aria-labelledby="navbarDropdown" class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#!">All Products</a></li>
+                        <li><a class="dropdown-item" href="{% url 'home' %}">All Products</a></li>
                         <li>
                             <hr class="dropdown-divider"/>
                         </li>
-                        <li><a class="dropdown-item" href="#!">Popular Items</a></li>
-                        <li><a class="dropdown-item" href="#!">New Arrivals</a></li>
+                        <li><a class="dropdown-item" href="{% url 'category' 'Programming-Books' %}">Programming
+                            Books</a></li>
+                        <li><a class="dropdown-item" href="{% url 'category' 'Marketing-Books' %}">Marketing
+                            Books</a></li>
                     </ul>
                 </li>
             </ul>
