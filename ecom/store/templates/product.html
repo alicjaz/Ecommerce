@@ -10,27 +10,51 @@
             </div>
             <div class="col-md-8">
                 <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text justify-content-center">{{ product.description }}</p>
-                        {% if product.is_sale %}
-                        <div class="d-flex justify-content-center small text-warning mb-2">
-                            <div class="bi-star-fill"></div>
-                            &nbsp; &nbsp; Sale! &nbsp; &nbsp;
-                            <div class="bi-star-fill"></div>
-                        </div>
-                        <!-- Product price-->
-                        <strike>{{ product.price }}</strike>
-                        &nbsp;
-                        ${{ product.sale_price }}
-                        {% else %}
-                        ${{ product.price }}
-                        {% endif %}
-                        <br/> <br/>
-                        <a class="btn btn-secondary" href="{% url 'home' %}">Home</a>
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text justify-content-center">{{ product.description }}</p>
+                    {% if product.is_sale %}
+                    <div class="d-flex justify-content-center small text-warning mb-2">
+                        <div class="bi-star-fill"></div>
+                        &nbsp; &nbsp; Sale! &nbsp; &nbsp;
+                        <div class="bi-star-fill"></div>
+                    </div>
+                    <!-- Product price-->
+                    <s>{{ product.price }}</s>
+                    &nbsp;
+                    ${{ product.sale_price }}
+                    {% else %}
+                    ${{ product.price }}
+                    {% endif %}
+                    <br/> <br/>
+                    <a class="btn btn-secondary" href="{% url 'home' %}">Home</a>
+                    <button class="btn btn-secondary" id="add-cart" type="button" value="{{ product.id }}">Add To Cart
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    $(document).on('click', '#add-cart', function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '{% url 'cart_add' %}',
+            data: {
+                product_id: $('#add-cart').val(),  // Corrected ID selector
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+            success: function(json) {
+                console.log(json);
+            },
+            error: function(xhr, errmsg, err) {
+                // Handle error
+            }
+        });
+    });
+</script>
+
 <br/><br/><br/><br/><br/>
 {% endblock %}
