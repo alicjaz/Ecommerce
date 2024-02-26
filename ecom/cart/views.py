@@ -7,32 +7,29 @@ from .cart import Cart
 
 def cart_summary(request):
     cart = Cart(request)
-    cart_products = cart.get_prods
-    return render(request, "cart_summary.html", {"cart_products": cart_products})
+    cart_products = cart.get_prods()
+    quantities = cart.get_quants()
+
+    print("Cart Products:", cart_products)  # Add this line
+    print("Quantities:", quantities)        # Add this line
+
+    return render(request, "cart_summary.html", {"cart_products": cart_products, "quantities": quantities})
 
 
 def cart_add(request):
     cart = Cart(request)
 
-    product_id_str = request.POST.get('product_id')
-    print(f"Received product ID: {product_id_str}")
+    if request.POST.get('action') == 'post':
+        product_id = int(request.POST.get('product_id'))
+        product_qty = int(request.POST.get('product_qty'))
+        product = get_object_or_404(Product, id=product_id)
 
-    if product_id_str is not None:
-        try:
-            product_id = int(product_id_str)
-            product = get_object_or_404(Product, id=product_id)
-            cart.add(product=product)
-            cart_quantity = cart.__len__()
-            #response = JsonResponse({'Product Name': product.name})
-            response = JsonResponse({'qty': cart_quantity})
-            return response
-        except (ValueError, Product.DoesNotExist) as e:
-            print(f"Error: {e}")
+        print("Adding Product to Cart:", product.name, "Quantity:", product_qty)
 
-    response = JsonResponse({'error': 'Invalid product ID'})
-    response.status_code = 400  # Bad Request
-
-    return response
+        cart.add(product=product, quantity=product_qty)
+        cart_quantity = cart.__len__()
+        response = JsonResponse({'qty': cart_quantity})
+        return response
 
 
 def cart_delete(request):
