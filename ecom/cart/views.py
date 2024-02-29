@@ -10,8 +10,8 @@ def cart_summary(request):
     cart_products = cart.get_prods()
     quantities = cart.get_quants()
 
-    print("Cart Products:", cart_products)  # Add this line
-    print("Quantities:", quantities)        # Add this line
+    print("Cart Products:", cart_products)
+    print("Quantities:", quantities)
 
     return render(request, "cart_summary.html", {"cart_products": cart_products, "quantities": quantities})
 
@@ -27,7 +27,7 @@ def cart_add(request):
         print("Adding Product to Cart:", product.name, "Quantity:", product_qty)
 
         cart.add(product=product, quantity=product_qty)
-        cart_quantity = cart.__len__()
+        cart_quantity = len(cart)
         response = JsonResponse({'qty': cart_quantity})
         return response
 
@@ -37,4 +37,13 @@ def cart_delete(request):
 
 
 def cart_update(request):
-    pass
+    cart = Cart(request)
+    if request.POST.get('action') == 'post':
+        product_id = int(request.POST.get('product_id'))
+        product_qty = int(request.POST.get('product_qty'))
+
+        cart.update(product=product_id, quantity=product_qty)
+
+        response = JsonResponse({'qty': product_qty})
+
+        return response

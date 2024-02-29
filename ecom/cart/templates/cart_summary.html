@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block content %}
@@ -8,66 +7,109 @@
     <div class="container px-4 px-lg-5 my-5">
         <div class="text-center text-white">
             <h1 class="display-4 fw-bolder">Shopping Cart</h1>
-            <p class="lead fw-normal text-white-50 mb-0">View your card</p>
+            <p class="lead fw-normal text-white-50 mb-0">View your cart</p>
         </div>
     </div>
 </header>
 <br/>
 <div class="container">
     {% if cart_products %}
-        {% for product in cart_products %}
-            <div class="card mb-3" style="">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img alt="..." class="img-fluid rounded-start" src="{{ product.image.url }}">
+    {% for product in cart_products %}
+    <div class="card mb-3" style="">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img alt="..." class="img-fluid rounded-start" src="{{ product.image.url }}" style="height: 450px;">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.description }}</p>
+                    {% if product.is_sale %}
+                    <div class="d-flex small text-warning mb-2">
+                        <div class="bi-star-fill"></div>
+                        &nbsp; &nbsp; Sale! &nbsp; &nbsp;
+                        <div class="bi-star-fill"></div>
                     </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text justify-content-center">{{ product.description }}</p>
-                            {% if product.is_sale %}
-                                <div class="d-flex justify-content-center small text-warning mb-2">
-                                    <div class="bi-star-fill"></div>
-                                    &nbsp; &nbsp; Sale! &nbsp; &nbsp;
-                                    <div class="bi-star-fill"></div>
-                                </div>
-                                <!-- Product price-->
-                                <s>{{ product.price }}</s>
-                                &nbsp;
-                                ${{ product.sale_price }}
-                            {% else %}
-                                ${{ product.price }}
-                            {% endif %}
-                            <br/> <br/>
-                            <div class="row justify">
-                                <div class="col-md-2">Quantity:</div>
-                                <div class="col-md-2">
-                                    <select class="form-select" id="qty-cart">
-                                        {% for key, value in quantities.items %}
-                                            {% if key == product.id|slugify %}
-                                                <option selected>{{ value }} </option>
-                                            {% endif %}
-                                        {% endfor %}
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <a class="btn btn-secondary" href="{% url 'home' %}">Home</a>
-                            <br/> <br/>
+                    <!-- Sale Information -->
+                    <div class="row">
+                        <div class="col-md-2">Price:</div>
+                        <div class="col-md-4">
+                            <s>${{ product.price }}</s>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-4">
+                            ${{ product.sale_price }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- Regular Price -->
+                    <div class="row">
+                        <div class="col-md-2">Price:</div>
+                        <div class="col-md-4">
+                            ${{ product.price }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    <br/> <br/>
+                    <div class="row justify">
+                        <div class="col-md-2">Quantity:</div>
+                        <div class="col-md-2">
+                            <select class="form-select form-select-sm" id="select{{product.id}}">
+                                {% for key, value in quantities.items %}
+                                {% if key == product.id|slugify %}
+                                <option selected>{{ value }}</option>
+                                {% endif %}
+                                {% endfor %}
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br/> <br/>
+                    <a class="btn btn-secondary" href="{% url 'home' %}">Home</a>
+                    <button class="btn btn-secondary update-cart" data-index="{{ product.id }}" type="button">Update
+                    </button>
+                    <br/> <br/>
                 </div>
             </div>
-            <br/>
-        {% endfor %}
+        </div>
+    </div>
+    <br/>
+    {% endfor %}
     {% else %}
-        There's nothing in your cart...
-        <br/> <br/>
+    There's nothing in your cart...
+    <br/> <br/>
     {% endif %}
 </div>
 <br/> <br/>
+
+<script>
+    $(document).on('click', '.update-cart', function(e) {
+        e.preventDefault();
+        var product_id = $(this).val();
+        var productid = $(this).data('index');
+        $.ajax({
+            type: 'POST',
+            url: '{% url 'cart_update' %}',
+            data: {
+                product_id: $(this).data('index'),
+                product_qty: $('#select' + productid + ' option:selected').text(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+            success: function(json) {
+                location.reload();
+            },
+            error: function(xhr, errmsg, err) {
+                // Handle error
+            }
+        });
+    });
+</script>
+
 {% endblock %}
