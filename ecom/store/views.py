@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
 from django.db.models import Q
+from django.shortcuts import render, redirect
 
 from .forms import SignUpForm
 from .models import Category, Product
@@ -77,3 +77,8 @@ def category(request, foo):
     except Category.DoesNotExist:
         messages.success(request, "That Category Doesn't Exist...")
         return redirect('home')
+
+
+def category_summary(request):
+    categories = Category.objects.all()
+    return render(request, 'category_summary.html', {'categories': categories})
