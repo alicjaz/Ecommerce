@@ -11,16 +11,18 @@
         </div>
     </div>
 </header>
-<br/> <br/>
+<br/>
 <div class="container">
     <div class="row">
         <div class="col-md-6 offset-md-3">
             <form action="{% url 'update_user' %}" method="POST">
                 {% csrf_token %}
                 {{ user_form.as_p }}
-                <br/> <br/>
+                <br/>
                 <button class="btn btn-secondary" type="submit">Update profile</button>
             </form>
+            <br/>
+            <a class="btn btn-secondary" href="{% url 'update_password' %}">Update password</a>
         </div>
     </div>
 </div>
