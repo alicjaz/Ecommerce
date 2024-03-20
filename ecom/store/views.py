@@ -139,3 +139,16 @@ def update_info(request):
     else:
         messages.success(request, "You must be log in to access that page")
         return redirect('home')
+
+
+def search(request):
+    if request.method == "POST":
+        searched = request.POST['searched']
+        searched = Product.objects.filter(Q(name__icontains=searched) | Q(description__icontains=searched))
+        if not searched:
+            messages.error(request, "That product doesnt exist. Please try again")
+            return render(request, "search.html", {})
+        else:
+            return render(request, "search.html", {'searched': searched})
+    else:
+        return render(request, "search.html", {})
