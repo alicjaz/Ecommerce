@@ -1,12 +1,17 @@
+import json
+
+from cart.cart import Cart
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.shortcuts import render, redirect
-import json
+from payment.forms import ShippingForm
+from payment.models import ShippingAddress
+
 from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
 from .models import Category, Product, Profile
-from cart.cart import Cart
+
 
 def home(request):
     products = Product.objects.all()
@@ -29,9 +34,8 @@ def login_user(request):
             if saved_cart:
                 converted_cart = json.loads(saved_cart)
                 cart = Cart(request)
-                for key,value in converted_cart.items():
+                for key, value in converted_cart.items():
                     cart.db_add(product=key, quantity=value)
-
 
             messages.success(request, "You have been logged in!")
             return redirect('home')
@@ -136,16 +140,19 @@ def update_password(request):
 def update_info(request):
     if request.user.is_authenticated:
         current_user = Profile.objects.get(user__id=request.user.id)
-        form = UserInfoForm(request.POST or None, instance=current_user)
-        if form.is_valid():
-            form.save()
+        shipping_user = ShippingAddress.objects.get(id=request.user.id)
 
+        form = UserInfoForm(request.POST or None, instance=current_user)
+        shipping_form = ShippingForm(request.POST or None, instance=shipping_user)
+        if form.is_valid() or shipping_form.is_valid():
+            form.save()
+            shipping_form.save()
             messages.success(request, "Your info has been updated")
             return redirect('home')
         else:
-            return render(request, 'update_info.html', {'form': form})
+            return render(request, 'update_info.html', {'form': form, 'shipping_form': shipping_form})
     else:
-        messages.success(request, "You must be log in to access that page")
+        messages.success(request, "You must be logged in to access that page")
         return redirect('home')
 
 
